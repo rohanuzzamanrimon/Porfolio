@@ -1,0 +1,106 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Education - Rohanuzzaman Rimon</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1 class="logo">Rohan</h1>
+            <nav>
+                <div class="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <ul>
+                    <li><a href="home.html">Home</a></li>
+                    <li><a href="education.html" class="active">Education</a></li>
+                    <li><a href="skills.html">Skills</a></li>
+                    <li><a href="contacts.html">Contacts</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    <main>
+        <section class="education-section fade-in">
+            <h2>Educational Achievements</h2>
+            <div class="education-box">
+                <div class="education-item active" data-degree="bsc">
+                    <span class="education-icon">🎓</span>
+                    <div class="education-content">
+                        <h3>Bachelor</h3>
+                        <p><strong>Institute:</strong> International University of Business Agriculture and Technology</p>
+                        <p><strong>Duration:</strong> 2021-2025</p>
+                        <p><strong>GPA:</strong> 3.13</p>
+                    </div>
+                </div>
+                <div class="education-item" data-degree="hsc">
+                    <span class="education-icon">📜</span>
+                    <div class="education-content">
+                        <h3>Higher Secondary</h3>
+                        <p><strong>Institute:</strong> Government Laboratory High School</p>
+                        <p><strong>Duration:</strong> 2018-2020</p>
+                        <p><strong>GPA:</strong> 5.00</p>
+                    </div>
+                </div>
+                <div class="education-item" data-degree="ssc">
+                    <span class="education-icon">🏫</span>
+                    <div class="education-content">
+                        <h3>Secondary School Certificate</h3>
+                        <p><strong>Institute:</strong> N.M.P High School</p>
+                        <p><strong>Duration:</strong> 2012-2018</p>
+                        <p><strong>GPA:</strong> 5.00</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <p>2025 Rohan, All rights reserved</p>
+    </footer>
+</body>
+</html>
